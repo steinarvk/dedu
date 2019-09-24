@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package dedupb;
+
+message ChunkMetadata {
+  string upload_timestamp = 1;
+  string suggested_filename = 2;
+}
+
+message MagicHeader {
+  string dedu = 1;
+  int32 protocol_version = 2;
+  int32 public_header_length = 3;
+}
+
+message PublicHeader {
+  string chunk_id = 1;
+  int32 private_header_length = 2;
+}
+
+message Hashes {
+  bytes sha1 = 1;
+  bytes md5 = 2;
+}
+
+message PrivateHeader {
+  VirtualChunk virtual_chunk = 1;
+  bytes chunk_specific_encryption_key = 2;
+  ChunkMetadata optional_metadata = 3;
+  Hashes plaintext_hashes = 4;
+  int32 plaintext_length = 5;
+}
+
+message Header {
+  MagicHeader magic = 1;
+  PublicHeader public = 2;
+  PrivateHeader private = 3;
+}
+
+message ChunkReference {
+  string hash = 1;
+  int64 length = 2;
+}
+
+message VirtualChunk {
+  int64 total_length = 1;
+  repeated ChunkReference chunk = 2;
+  Hashes plaintext_hashes = 3;
+  string chunk_id = 4;
+}
+
+message LocalResourceChunk {
+  string resource_name = 1;
+  int64 offset = 2;
+  int64 length = 3;
+  string hash_of_plaintext = 4;
+  string hash_of_cryptotext = 5;
+  ChunkReference chunk = 6;
+}
+
+message PcloudCredentials {
+  string username = 1;
+  string password = 2;
+}
+
+message StorageCredentials {
+  PcloudCredentials pcloud = 1;
+}
+
+message Keyset {
+  oneof kind {
+    bytes unencrypted_tink_keyset = 1;
+  }
+}
+
+message QmfsConfig {
+  string qmfs_root = 1;
+}
+
+message DeduConfig {
+  string empty_blob_hash_sanity_check = 1;
+  string pcloud_target_folder = 2;
+  int64 chunk_size = 3;
+  QmfsConfig qmfs = 4;
+}
+
+message DeduSecretsConfig {
+  bytes hashing_key = 1;
+  Keyset encryption_keys = 2;
+  StorageCredentials storage_creds = 3;
+  DeduConfig config = 4;
+}
