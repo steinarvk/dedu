@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -135,7 +136,12 @@ func init() {
 
 		for _, entityID := range entityIDs {
 			if !deduhash.LooksLikeDeduhash(entityID) {
-				return fmt.Errorf("argument %q does not appear to be a hash", entityID)
+				base := path.Base(entityID)
+				if deduhash.LooksLikeDeduhash(base) {
+					entityID = base
+				} else {
+					return fmt.Errorf("argument %q does not appear to be a hash", entityID)
+				}
 			}
 
 			if err := getOneFile(entityID); err != nil {

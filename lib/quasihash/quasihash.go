@@ -81,9 +81,6 @@ func (k Key) QuasihashFile(path string) (string, error) {
 	mac.Write([]byte(fmt.Sprintf("%d", totalSize)))
 
 	fileSizeOnlyHash := mac.Sum(nil)
-	logrus.Debugf("filesizeonlyhash: %x", fileSizeOnlyHash)
-	logrus.Debugf("filesizeonlyhash: %x", mac.Sum(nil))
-	logrus.Debugf("filesizeonlyhash: %x", mac.Sum(nil))
 
 	if totalSize <= (chunkSize * numChunks) {
 		// File is too small for the chunking strategy.

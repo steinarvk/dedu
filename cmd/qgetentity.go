@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/steinarvk/linetool/lib/lines"
 	"github.com/steinarvk/orc"
@@ -34,7 +36,20 @@ func (o registerOrGetOpts) registerOrGetEntity(filename string) (string, error) 
 		return "", fmt.Errorf("internal error: orcdeduq was not initialised")
 	}
 
-	filename, err := filepath.Abs(filename)
+	info, err := os.Lstat(filename)
+	if err != nil {
+		return "", err
+	}
+	if info.Mode()&os.ModeSymlink != 0 {
+		target, err := os.Readlink(filename)
+		if err != nil {
+			return "", err
+		}
+		logrus.Infof("Resolving symlink %q to %q", filename, target)
+		filename = target
+	}
+
+	filename, err = filepath.Abs(filename)
 	if err != nil {
 		return "", fmt.Errorf("error getting absolute path of %q", filename)
 	}
