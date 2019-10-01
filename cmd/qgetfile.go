@@ -140,8 +140,24 @@ func init() {
 				if deduhash.LooksLikeDeduhash(base) {
 					entityID = base
 				} else {
-					return fmt.Errorf("argument %q does not appear to be a hash", entityID)
+					if info, err := os.Lstat(entityID); err == nil {
+						isSymlink := (info.Mode() & os.ModeSymlink) != 0
+						if isSymlink {
+							target, err := os.Readlink(entityID)
+							if err != nil {
+								continue
+							}
+							base := path.Base(target)
+							if deduhash.LooksLikeDeduhash(base) {
+								entityID = base
+							}
+						}
+					}
 				}
+			}
+
+			if !deduhash.LooksLikeDeduhash(entityID) {
+				return fmt.Errorf("argument %q does not appear to be a hash", entityID)
 			}
 
 			if err := getOneFile(entityID); err != nil {
