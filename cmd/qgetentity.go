@@ -10,6 +10,7 @@ import (
 	"github.com/steinarvk/linetool/lib/lines"
 	"github.com/steinarvk/orc"
 
+	"github.com/steinarvk/dedu/lib/deduhash"
 	"github.com/steinarvk/dedu/lib/dedusecrets"
 	orcdedu "github.com/steinarvk/dedu/module/orc-dedu"
 	orcdeduq "github.com/steinarvk/dedu/module/orc-deduq"
@@ -151,19 +152,24 @@ func init() {
 			return fmt.Errorf("invalid value --full_hash=%q: allowed values are: always, never, auto", flagFullHash)
 		}
 
-		alwaysVerify := flagFullHash == "always"
-		allowHashing := flagFullHash != "never"
+		var entityID string
+		if deduhash.LooksLikeDeduhash(filenames[0]) {
+			entityID = filenames[0]
+		} else {
+			alwaysVerify := flagFullHash == "always"
+			allowHashing := flagFullHash != "never"
 
-		rogopts := registerOrGetOpts{
-			readonly:     flagReadonly,
-			alwaysVerify: alwaysVerify,
-			allowHashing: allowHashing,
-			dedu:         orcdedu.M.Dedu,
-		}
-
-		entityID, err := rogopts.registerOrGetEntity(filenames[0])
-		if err != nil {
-			return err
+			rogopts := registerOrGetOpts{
+				readonly:     flagReadonly,
+				alwaysVerify: alwaysVerify,
+				allowHashing: allowHashing,
+				dedu:         orcdedu.M.Dedu,
+			}
+			result, err := rogopts.registerOrGetEntity(filenames[0])
+			if err != nil {
+				return err
+			}
+			entityID = result
 		}
 
 		if flagGetPath {
