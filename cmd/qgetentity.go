@@ -101,7 +101,7 @@ func (o registerOrGetOpts) registerOrGetEntity(filename string) (string, error) 
 		// We found the answer; now register it.
 		didFindRightEntity := false
 
-		if err := lines.CreateOrExpect(deduq.Filename(dh, "quasihash"), []string{qh}); err != nil {
+		if err := lines.CreateOrExpect(deduq.Filename(dh, "quasihash"), []string{qh}, true); err != nil {
 			return dh, err
 		}
 
