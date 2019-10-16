@@ -12,22 +12,11 @@ import (
 	"github.com/steinarvk/orc"
 )
 
-var (
-	ConfigDirs = []string{
-		"~/.config/dedu",
-		"~/.dedu",
-		"/etc/dedu/",
-	}
-
-	SecretsConfigName = "deducfg.secret.pb_text"
-	ConfigName        = "deducfg.pb_text"
-)
-
 type Module struct {
 	Root string
 }
 
-func (m *Module) ModuleName() string { return "Dedu" }
+func (m *Module) ModuleName() string { return "Deduq" }
 
 var M = &Module{}
 
